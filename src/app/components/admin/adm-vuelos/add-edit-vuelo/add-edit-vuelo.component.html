@@ -1,0 +1,144 @@
+<div mat-dialog-title>
+  <h1>{{ data ? 'Modificar' : 'Añadir' }} Vuelo</h1>
+</div>
+<form [formGroup]="vueloForm" (ngSubmit)="onFormSubmit()">
+  <div mat-dialog-content class="content">
+    <div class="row">
+      <div class="col">
+        <mat-form-field appearance="outline"
+          [ngClass]="{ 'has-error': vueloForm.get('idAeropuertoOrigen').invalid && vueloForm.get('idAeropuertoOrigen').touched }">
+          <mat-label>Aeropuerto Origen</mat-label>
+          <mat-select formControlName="idAeropuertoOrigen">
+            <mat-option *ngFor="let aeropuerto of aeropuertos" [value]="aeropuerto.idAeropuerto"
+              [disabled]="aeropuerto.idAeropuerto === vueloForm.get('idAeropuertoDestino').value">
+              {{ aeropuerto.nombre }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="vueloForm.get('idAeropuertoOrigen').invalid && vueloForm.get('idAeropuertoOrigen').touched">
+            Aeropuerto de origen es requerido.
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="col">
+        <mat-form-field appearance="outline"
+          [ngClass]="{ 'has-error': vueloForm.get('idAeropuertoDestino').invalid && vueloForm.get('idAeropuertoDestino').touched }">
+          <mat-label>Aeropuerto Destino</mat-label>
+          <mat-select formControlName="idAeropuertoDestino">
+            <mat-option *ngFor="let aeropuerto of aeropuertos" [value]="aeropuerto.idAeropuerto"
+              [disabled]="aeropuerto.idAeropuerto === vueloForm.get('idAeropuertoOrigen').value">
+              {{ aeropuerto.nombre }}
+            </mat-option>
+          </mat-select>
+          <mat-error
+            *ngIf="vueloForm.get('idAeropuertoDestino').invalid && vueloForm.get('idAeropuertoDestino').touched">
+            Aeropuerto de destino es requerido.
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <div class="mat-form-field">
+          <input type="datetime-local" matInput placeholder=" " formControlName="fechaSalida" [min]="currentDateTime"
+            (change)="setMinArrivalDate()">
+          <label>Fecha y Hora de Salida</label>
+          <div class="mat-form-field-outline"></div>
+          <mat-error *ngIf="vueloForm.get('fechaSalida').invalid && vueloForm.get('fechaSalida').touched"
+            class="mat-error">
+            Hora de salida es requerida.
+          </mat-error>
+          <mat-error class="mat-error" *ngIf="vueloForm.get('fechaSalida').hasError('fechaPasada')">
+            La fecha y hora de salida no puede ser anterior a la fecha y hora actual.
+          </mat-error>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="mat-form-field">
+          <input type="datetime-local" matInput placeholder=" " formControlName="fechaLlegada"  (input)="checkFechaLlegadaValidity()">
+          <label>Fecha y Hora de Llegada</label>
+          <div class="mat-form-field-outline"></div>
+          <mat-error *ngIf="vueloForm.get('fechaLlegada').invalid && vueloForm.get('fechaLlegada').touched"
+            class="mat-error">
+            Hora de llegada es requerida.
+          </mat-error>
+          <mat-error class = "mat-error" *ngIf="vueloForm.get('fechaLlegada').hasError('fechaInvalida')">
+            La fecha de llegada debe ser máximo 24 horas después de la fecha de salida.
+          </mat-error>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div class="row">
+      <div class="col-4">
+        <mat-form-field appearance="outline"
+          [ngClass]="{ 'has-error': vueloForm.get('precioAsientoPreferencial').invalid && vueloForm.get('precioAsientoPreferencial').touched }">
+          <mat-label>Precio Preferencial</mat-label>
+          <input matInput type="number" min="0" placeholder="Ej. 200000" formControlName="precioAsientoPreferencial">
+          <mat-error
+            *ngIf="vueloForm.get('precioAsientoPreferencial').invalid && vueloForm.get('precioAsientoPreferencial').touched">
+            Precio preferencial es requerido y debe ser mayor o igual a 0.
+          </mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col-4">
+        <mat-form-field appearance="outline"
+          [ngClass]="{ 'has-error': vueloForm.get('precioAsientoVip').invalid && vueloForm.get('precioAsientoVip').touched }">
+          <mat-label>Precio Vip</mat-label>
+          <input matInput type="number" min="0" placeholder="Ej. 200000" formControlName="precioAsientoVip">
+          <mat-error *ngIf="vueloForm.get('precioAsientoVip').invalid && vueloForm.get('precioAsientoVip').touched">
+            Precio VIP es requerido y debe ser mayor o igual a 0.
+          </mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col-4">
+        <mat-form-field appearance="outline"
+          [ngClass]="{ 'has-error': vueloForm.get('precioAsientoTurista').invalid && vueloForm.get('precioAsientoTurista').touched }">
+          <mat-label>Precio Turista</mat-label>
+          <input matInput type="number" min="0" placeholder="Ej. 200000" formControlName="precioAsientoTurista">
+          <mat-error
+            *ngIf="vueloForm.get('precioAsientoTurista').invalid && vueloForm.get('precioAsientoTurista').touched">
+            Precio turista es requerido y debe ser mayor o igual a 0.
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <mat-form-field appearance="outline"
+          [ngClass]="{ 'has-error': vueloForm.get('precioVuelo').invalid && vueloForm.get('precioVuelo').touched }">
+          <mat-label>Precio del vuelo</mat-label>
+          <input matInput type="number" min="0" placeholder="Ej. 200000" formControlName="precioVuelo">
+          <mat-error *ngIf="vueloForm.get('precioVuelo').invalid && vueloForm.get('precioVuelo').touched">
+            Precio del vuelo es requerido y debe ser mayor o igual a 0.
+          </mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col">
+        <mat-form-field appearance="outline"
+          [ngClass]="{ 'has-error': vueloForm.get('estado').invalid && vueloForm.get('estado').touched }">
+          <mat-label>Estado</mat-label>
+          <mat-select formControlName="estado">
+            <mat-option value="Activo">Activo</mat-option>
+            <mat-option value="Inactivo">Inactivo</mat-option>
+          </mat-select>
+          <mat-error *ngIf="vueloForm.get('estado').invalid && vueloForm.get('estado').touched">
+            Estado es requerido.
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+  </div>
+
+  <div mat-dialog-actions class="action">
+    <button mat-raised-button type="button" [mat-dialog-close]="false">Cancel</button>
+    <button mat-raised-button color="primary" [disabled]="!vueloForm.valid" type="submit">{{ data ? 'Actualizar' :
+      'Guardar' }}</button>
+  </div>
+</form>
